@@ -26,6 +26,13 @@ public class PostsController : ControllerBase
             .ToListAsync();
     }
 
+    [HttpGet("test")]
+    public IActionResult Test()
+    {
+        return Ok("The PostsController is working!");
+    }
+
+
     // GET: api/Posts/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Post>> GetPost(int id)
