@@ -1,0 +1,7 @@
+POST http://localhost:5194/api/posts
+Content-Type: application/json
+
+{
+    "content": "This is a new post",
+    "userId": 1
+}
