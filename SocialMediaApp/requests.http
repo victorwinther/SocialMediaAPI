@@ -1,3 +1,1 @@
-
-
-GET http://localhost:5194/api/posts
+POST http://localhost:5194/api/likes/13?userId=1

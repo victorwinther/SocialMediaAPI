@@ -7,9 +7,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<SocialMediaContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Enable CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+// Enable CORS globally
+app.UseCors("AllowAllOrigins");
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();

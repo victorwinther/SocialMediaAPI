@@ -22,7 +22,7 @@ public class PostsController : ControllerBase
     {
         return await _context.Posts
             .Include(p => p.User) // Inkluder brugeren for hvert indlæg
-            .Include(p => p.Comments) // Inkluder kommentarer
+            .Include(p => p.Comments) // Inkluder kommentare
             .ToListAsync();
     }
 
@@ -36,30 +36,55 @@ public class PostsController : ControllerBase
     // GET: api/Posts/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Post>> GetPost(int id)
-    {
-        var post = await _context.Posts
-            .Include(p => p.User)
-            .Include(p => p.Comments)
-            .FirstOrDefaultAsync(p => p.Id == id);
-
-        if (post == null)
+   {
+    var posts = await _context.Posts
+        .Include(p => p.User)
+        .Include(p => p.Comments)
+        .Include(p => p.Likes)
+        .Select(p => new 
         {
-            return NotFound();
-        }
+            Id = p.Id,
+            Content = p.Content,
+            CreatedAt = p.CreatedAt,
+            UserId = p.UserId,
+            User = p.User.Username,
+            LikeCount = p.Likes.Count(), // Count of likes
+            Comments = p.Comments.Select(c => new 
+            {
+                Id = c.Id,
+                Content = c.Content,
+                User = c.User.Username,
+                CreatedAt = c.CreatedAt
+            }).ToList()
+        })
+        .ToListAsync();
 
-        return post;
-    }
+    return Ok(posts);
+}
 
     // POST: api/Posts
     [HttpPost]
-    public async Task<ActionResult<Post>> CreatePost(Post post)
+public async Task<ActionResult<Post>> CreatePost(Post post)
+{
+    try
     {
-        post.CreatedAt = DateTime.UtcNow;
+        if (post == null || string.IsNullOrEmpty(post.Content) || post.UserId == 0)
+        {
+            return BadRequest("Invalid post data");
+        }
+
         _context.Posts.Add(post);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction("GetPost", new { id = post.Id }, post);
     }
+    catch (Exception ex)
+    {
+        // Log exception to help debug
+        return StatusCode(500, $"Internal server error: {ex.Message}");
+    }
+}
+
 
     // PUT: api/Posts/5
     [HttpPut("{id}")]

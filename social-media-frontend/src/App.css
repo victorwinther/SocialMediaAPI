@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+/* Custom styles for cards */
+.card {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.navbar {
+  background-color: #007bff !important;
+}
+

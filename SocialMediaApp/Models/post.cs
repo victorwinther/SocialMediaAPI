@@ -7,4 +7,7 @@ public class Post
         public User? User { get; set; } // Nullable User to avoid validation error
         public List<Comment>? Comments { get; set; } = new List<Comment>(); // Nullable Comments list
 
+         // Navigation property to hold the Likes
+    public List<Like> Likes { get; set; } = new List<Like>(); // Initialize as an empty list
+
 }
