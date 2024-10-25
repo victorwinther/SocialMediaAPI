@@ -20,11 +20,23 @@ public class PostsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Post>>> GetPosts()
     {
-        return await _context.Posts
-            .Include(p => p.User) // Inkluder brugeren for hvert indlæg
-            .Include(p => p.Comments) // Inkluder kommentare
-            .ToListAsync();
-    }
+       var posts = await _context.Posts
+        .Include(p => p.User)
+        .Include(p => p.Comments)
+        .Include(p => p.Likes) // Include likes to get the count
+        .Select(p => new PostDTO
+        {
+            Id = p.Id,
+            Content = p.Content,
+            CreatedAt = p.CreatedAt,
+            UserId = p.UserId,
+            LikeCount = p.Likes.Count,  // Return the count of likes
+            UserHasLiked = false  // You can set this dynamically based on the current user
+        })
+        .ToListAsync();
+
+    return Ok(posts);
+}
 
     [HttpGet("test")]
     public IActionResult Test()
@@ -37,7 +49,7 @@ public class PostsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Post>> GetPost(int id)
    {
-    var posts = await _context.Posts
+   var posts = await _context.Posts
         .Include(p => p.User)
         .Include(p => p.Comments)
         .Include(p => p.Likes)
@@ -48,7 +60,8 @@ public class PostsController : ControllerBase
             CreatedAt = p.CreatedAt,
             UserId = p.UserId,
             User = p.User.Username,
-            LikeCount = p.Likes.Count(), // Count of likes
+            LikeCount = p.Likes.Count(),
+            UserHasLiked = p.Likes.Any(l => l.UserId == id),  // Check if this user has liked the post
             Comments = p.Comments.Select(c => new 
             {
                 Id = c.Id,
@@ -60,6 +73,7 @@ public class PostsController : ControllerBase
         .ToListAsync();
 
     return Ok(posts);
+
 }
 
     // POST: api/Posts

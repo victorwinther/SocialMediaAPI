@@ -47,19 +47,17 @@ using System.Threading.Tasks;
             return Ok(new { message = "Post liked successfully" });
         }
 
-        // DELETE: api/likes/{postId}/unlike
+       // DELETE: api/likes/{postId}/unlike
         [HttpDelete("{postId}/unlike")]
-        public async Task<IActionResult> UnlikePost(int postId, int userId)
+        public async Task<IActionResult> UnlikePost(int postId, [FromQuery] int userId) // Using query param for userId
         {
-            // Check if the post exists
             var post = await _context.Posts.FindAsync(postId);
             if (post == null)
             {
                 return NotFound(new { message = "Post not found" });
             }
 
-            // Find the like to remove
-            var like = _context.Likes.FirstOrDefault(l => l.PostId == postId && l.UserId == userId);
+            var like = await _context.Likes.FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userId);
             if (like == null)
             {
                 return NotFound(new { message = "Like not found" });
@@ -70,5 +68,6 @@ using System.Threading.Tasks;
 
             return Ok(new { message = "Post unliked successfully" });
         }
+
     }
 
